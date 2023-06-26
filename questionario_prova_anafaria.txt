@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import './Questao.dart';
+import './Resposta.dart';
+
+class Questionario extends StatefulWidget {
+  final List<Map<String, Object>> perguntas;
+  final int perguntaAtual;
+  final void Function() responder;
+  final void Function(List<String>) exibirRespostasSelecionadas;
+
+  Questionario({
+    required this.perguntas,
+    required this.perguntaAtual,
+    required this.responder,
+    required this.exibirRespostasSelecionadas,
+  });
+
+  @override
+  _QuestionarioState createState() => _QuestionarioState();
+}
+
+class _QuestionarioState extends State<Questionario> {
+  List<String> respostasSelecionadas = [];
+
+  void registrarResposta(String resposta) {
+    setState(() {
+      respostasSelecionadas.add(resposta);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> respostas = [];
+
+    if (widget.perguntaAtual < widget.perguntas.length) {
+      for (var resposta
+          in widget.perguntas[widget.perguntaAtual]['respostas'] as List<String>) {
+        respostas.add(
+          Resposta(resposta, () {
+            registrarResposta(resposta);
+            widget.exibirRespostasSelecionadas(respostasSelecionadas);
+          }),
+        );
+      }
+    }
+
+    return Column(
+      children: <Widget>[
+        widget.perguntaAtual < widget.perguntas.length
+            ? Questao(widget.perguntas[widget.perguntaAtual]['texto'].toString())
+            : Questao('Terminou'),
+        widget.perguntaAtual < widget.perguntas.length
+            ? Column(
+                children: [
+                  ...respostas,
+                ],
+              )
+            : Text('Resultado'),
+      ],
+    );
+  }
+}
